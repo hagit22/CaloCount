@@ -1,9 +1,15 @@
 package com.example.calocount.fragments.home;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.media.MediaPlayer;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -20,6 +27,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.calocount.Constants;
 import com.example.calocount.data.FoodEntry;
 import com.example.calocount.databinding.FragmentHomeBinding;
 import com.example.calocount.utils.CalorieEstimator;
@@ -59,6 +67,10 @@ public class HomeFragment extends Fragment {
         foodRepo.getAll(list -> updateFoodEntryList(list));
         calorieEstimator = new CalorieEstimator(getContext());
 
+        // Testing Data (just load one time to test) !!!
+        //foodRepo.addTestDataAcrossDays();
+        ///  /////////////////////////////
+
         return binding.getRoot();
     }
 
@@ -69,7 +81,7 @@ public class HomeFragment extends Fragment {
 
         // Here is where the magic happens, and we click everything together!!
         foodEntryList = new ArrayList<>(); // Initialize the list of food entries
-        foodAdapter = new FoodAdapter(foodEntryList); // We create an adapter with the list of food entries
+        foodAdapter = new FoodAdapter(getContext(), foodEntryList); // We create an adapter with the list of food entries
         recyclerView.setAdapter(foodAdapter); // We connect the adapter to the recycler view
         // Optional: Set item click listener if needed
 
@@ -233,15 +245,31 @@ public class HomeFragment extends Fragment {
                     Log.d("HomeFragment", "Database updated successfully");
                     updateFoodEntryList(list);
                 });
+                playSuccessSound();
             }
 
             @Override
             public void onError(String error) {
                 Log.e("HomeFragment", "Calorie estimation failed: " + error);
-                // Optional: Show user-friendly error message
-                // Toast.makeText(getContext(), "Couldn't estimate calories", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Couldn't estimate calories", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    private void playSuccessSound() {
+        // Read sound setting and play if enabled
+        SharedPreferences prefs = getContext().getSharedPreferences(Constants.SHARED_PREFS_NAME, MODE_PRIVATE);
+        boolean soundEnabled = prefs.getBoolean(Constants.KEY_SOUND_EFFECTS_ENABLED, false);
+        Log.d("HomeFragment", "Sound enabled: " + soundEnabled);
+
+        if (soundEnabled) {
+
+            //Uri notificationUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+            //RingtoneManager.getRingtone(getContext(), notificationUri).play();
+
+            MediaPlayer mediaPlayer = MediaPlayer.create(getContext(), R.raw.sound_incoming);
+            mediaPlayer.start();
+            mediaPlayer.setOnCompletionListener(mp -> mp.release());
+        }
     }
 
     // Create a single callback method

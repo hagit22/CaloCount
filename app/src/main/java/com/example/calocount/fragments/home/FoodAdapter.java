@@ -9,19 +9,25 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import com.example.calocount.Constants;
 import com.example.calocount.data.FoodEntry;
 import com.example.calocount.R;
 
 public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.MyViewHolder> {
 
+    private Context context;
     private List<FoodEntry> itemList;
 
-    public FoodAdapter(List<FoodEntry> itemList) {
+    public FoodAdapter(Context context, List<FoodEntry> itemList) {
+        this.context = context;
         this.itemList = itemList;
     }
 
@@ -54,15 +60,21 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.MyViewHolder> 
         holder.imageViewItem.setImageResource(currentItem.getImageResource());
 
         //holder.textViewDateTime.setText(currentItem.getDateTime().toString());
-        holder.textViewDateTime.setText(DateFormat.format("MMM dd, h:mm a",
-                currentItem.getDateTime()));
+        //holder.textViewDateTime.setText(DateFormat.format("MMM dd, h:mm a", currentItem.getDateTime()));
+        SharedPreferences prefs = context.getSharedPreferences(Constants.SHARED_PREFS_NAME, Context.MODE_PRIVATE);
+        String timeFormat = prefs.getString(Constants.KEY_TIME_FORMAT, "24-hour format");
+
+        String formatString = "MMM dd, HH:mm";
+        if (timeFormat.equals("12-hour format"))
+            formatString = "MMM dd, h:mm a";
+        holder.textViewDateTime.setText(DateFormat.format(formatString, currentItem.getDateTime()));
 
         holder.textViewDescription.setText(currentItem.getDescription());
 
         int calories = currentItem.getCalories();
-        Log.d("Adapter", "DEBUG - Item: " + currentItem.getDescription() + " calories: " + calories);
+        //Log.d("Adapter", "DEBUG - Item: " + currentItem.getDescription() + " calories: " + calories);
         String caloriesText = (calories == -1) ? "-" : "" + calories;
-        Log.d("Adapter", "DEBUG - Setting text: " + caloriesText);
+        //Log.d("Adapter", "DEBUG - Setting text: " + caloriesText);
         holder.textViewCalories.setText(caloriesText);
 
         // Implemented with Lambda notation, (instead of using an anonymous inner class - like below)

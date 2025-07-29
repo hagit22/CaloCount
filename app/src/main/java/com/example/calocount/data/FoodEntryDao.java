@@ -10,7 +10,7 @@ import java.util.List;
 
 @Dao
 public interface FoodEntryDao {
-    @Query("SELECT * FROM FoodEntry")
+    @Query("SELECT * FROM FoodEntry ORDER BY dateTime DESC")
     List<FoodEntry> getAll();
 
     @Insert

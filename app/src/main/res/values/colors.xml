@@ -18,6 +18,7 @@
     <color name="orange_700">#F57C00</color>
 
     <!-- additional app colors -->
+    <color name="dark_text">#333333</color>
     <color name="text_secondary">#666666</color>
 
 </resources>

@@ -12,8 +12,15 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import android.util.Log;
+import android.os.Handler;
+import android.os.Looper;
 
 public class CalorieEstimator {
+
+    private static final int SHORT_RETRY_ATTEMPTS = 3;
+    private static final long SHORT_DELAY = 2000;       // 2 seconds
+    private static final long LONG_DELAY = 30000;       // 30 seconds
+
     private GenerativeModel gm;
     private Context context;
 
@@ -23,10 +30,14 @@ public class CalorieEstimator {
     }
 
     public void estimateCalories(String foodDescription, CalorieListener calorieListener) {
-        Log.d("CalorieEstimator", "Sending request to AI: " + foodDescription);
+        estimateWithRetry(foodDescription, calorieListener, 0, false);
+    }
 
-        String prompt = "Estimate calories for: " + foodDescription +
-                ". Respond with only a number, no text.";
+    private void estimateWithRetry(String foodDescription, CalorieListener calorieListener,
+                                   int attemptNumber, boolean isLongTermRetry) {
+        Log.d("CalorieEstimator", "Attempt " + (attemptNumber + 1) + " - Sending request to AI: " + foodDescription);
+
+        String prompt = "Estimate calories for: " + foodDescription + ". Respond with only a number, no text.";
 
         Content content = new Content.Builder()
                 .addText(prompt)
@@ -53,9 +64,51 @@ public class CalorieEstimator {
             @Override
             public void onFailure(Throwable t) {
                 Log.e("CalorieEstimator", "AI request failed: " + t.getMessage());
-                calorieListener.onError(t.getMessage());
+                //calorieListener.onError(t.getMessage());
+
+                // Retries mechanism
+                handleFailure(t, foodDescription, calorieListener, attemptNumber, isLongTermRetry);
             }
         }, ContextCompat.getMainExecutor(context));
+    }
+
+    private void handleFailure(Throwable t, String foodDescription, CalorieListener calorieListener,
+                               int attemptNumber, boolean isLongTermRetry) {
+        String error = t.getMessage();
+        Log.e("CalorieEstimator", "AI request failed (attempt " + (attemptNumber + 1) + "): " + error);
+
+        if (isServerError(error)) {
+            if (!isLongTermRetry && attemptNumber < SHORT_RETRY_ATTEMPTS - 1) {
+                // Short-term retries
+                long delay = SHORT_DELAY * (long)Math.pow(2, attemptNumber);
+                Log.d("CalorieEstimator", "Short retry in " + delay + "ms...");
+
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    estimateWithRetry(foodDescription, calorieListener, attemptNumber + 1, false);
+                }, delay);
+            }
+            else {
+                // Long-term periodic retries
+                Log.d("CalorieEstimator", "Switching to periodic retries every " + (LONG_DELAY/1000) + " seconds...");
+
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    estimateWithRetry(foodDescription, calorieListener, 0, true);
+                }, LONG_DELAY);
+            }
+        }
+        else {
+            calorieListener.onError("Calorie estimation failed: " + error);
+        }
+    }
+
+    private boolean isServerError(String error) {
+        return error != null &&
+                (error.contains("overloaded") ||
+                        error.contains("503") ||
+                        error.contains("UNAVAILABLE") ||
+                        error.contains("timeout") ||
+                        error.contains("502") ||
+                        error.contains("504"));
     }
 
     public interface CalorieListener {

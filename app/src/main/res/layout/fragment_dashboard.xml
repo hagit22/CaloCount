@@ -1,22 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".fragments.dashboard.DashboardFragment">
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	tools:context=".fragments.dashboard.DashboardFragment">
 
-    <TextView
-        android:id="@+id/text_dashboard"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+	<LinearLayout
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="8dp"
+		android:layout_marginTop="8dp"
+		android:layout_marginEnd="8dp"
+		android:orientation="vertical"
+		android:padding="24dp"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent">
+
+		<!-- Today's Calories Section -->
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="16dp"
+			android:text="📊 Today's Calories"
+			android:textSize="20sp"
+			android:textStyle="bold"
+			android:textColor="@color/green_700"
+			android:layout_marginBottom="8dp" />
+
+		<TextView
+			android:id="@+id/textViewTodayCalories"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="1,250 cal"
+			android:textSize="32sp"
+			android:textStyle="bold"
+			android:textColor="@color/green_500"
+			android:layout_marginBottom="32dp"
+			android:layout_marginStart="16dp" />
+
+		<!-- Daily Averages Section -->
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="📈 Daily Averages"
+			android:textSize="20sp"
+			android:textStyle="bold"
+			android:textColor="@color/green_700"
+			android:layout_marginBottom="16dp" />
+
+		<TextView
+			android:id="@+id/textView7DayAverage"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Last 7 days: 1,180 cal/day"
+			android:textSize="18sp"
+			android:textColor="@color/dark_text"
+			android:layout_marginBottom="12dp"
+			android:layout_marginStart="16dp" />
+
+		<TextView
+			android:id="@+id/textView30DayAverage"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Last 30 days: 1,220 cal/day"
+			android:textSize="18sp"
+			android:textColor="@color/dark_text"
+			android:layout_marginBottom="12dp"
+			android:layout_marginStart="16dp" />
+
+		<TextView
+			android:id="@+id/textViewAllTimeAverage"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="All time: 1,150 cal/day"
+			android:textSize="18sp"
+			android:textColor="@color/dark_text"
+			android:layout_marginStart="16dp" />
+
+	</LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
